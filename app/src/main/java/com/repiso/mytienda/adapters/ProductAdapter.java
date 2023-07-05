@@ -1,6 +1,7 @@
 package com.repiso.mytienda.adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.repiso.mytienda.R;
+import com.repiso.mytienda.activities.ProductDetailActivity;
 import com.repiso.mytienda.databinding.ItemCategoriesBinding;
 import com.repiso.mytienda.databinding.ItemProductBinding;
 import com.repiso.mytienda.models.Product;
@@ -56,7 +58,19 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
                 .load(product.getImage())
                 .into(holder.binding.image);
         holder.binding.label.setText(product.getName());
-        holder.binding.price.setText(String.valueOf(product.getPrice())+"€");
+        holder.binding.price.setText(String.valueOf(product.getPrice())+" €");
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(context, ProductDetailActivity.class);
+                intent.putExtra("name", product.getName());
+                intent.putExtra("image", product.getImage());
+                intent.putExtra("id", product.getId());
+                intent.putExtra("price", product.getPrice());
+                context.startActivity(intent);
+            }
+        });
 
     }
 
