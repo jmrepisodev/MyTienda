@@ -74,7 +74,7 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
 
     /**
      * Devuelve el número de elementos
-     * @return
+     * @return nº elementos
      */
     @Override
     public int getItemCount() {
@@ -86,7 +86,7 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
      */
     public class CategoryViewHolder extends RecyclerView.ViewHolder{
 
-        ItemCategoriesBinding binding;
+        ItemCategoriesBinding binding; //Realiza las asociaciones
 
         public CategoryViewHolder(@NonNull View itemView) {
             super(itemView);
