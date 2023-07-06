@@ -4,10 +4,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.LinearLayout;
 
 import com.hishd.tinycart.model.Cart;
+import com.hishd.tinycart.model.Item;
 import com.hishd.tinycart.util.TinyCartHelper;
 import com.repiso.mytienda.R;
 import com.repiso.mytienda.adapters.CartAdapter;
@@ -15,6 +18,7 @@ import com.repiso.mytienda.databinding.ActivityCartBinding;
 import com.repiso.mytienda.models.Product;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 public class CartActivity extends AppCompatActivity {
 
@@ -32,17 +36,37 @@ public class CartActivity extends AppCompatActivity {
 
         products=new ArrayList<>();
 
-        products.add(new Product("nombre", "https://img.freepik.com/iconos-gratis/androide_318-674214.jpg?w=2000", "estado", 25,40,56,1));
-        products.add(new Product("nombre", "https://img.freepik.com/iconos-gratis/androide_318-674214.jpg?w=2000", "estado", 25,40,56,2));
-        products.add(new Product("nombre", "https://img.freepik.com/iconos-gratis/androide_318-674214.jpg?w=2000", "estado", 25,40,56,3));
+        for(Map.Entry<Item, Integer> item : cart.getAllItemsWithQty().entrySet()) {
+            Product product = (Product) item.getKey();
+            int quantity = item.getValue();
+            product.setQuantity(quantity);
 
-        cartAdapter=new CartAdapter(this, products);
+            products.add(product);
+        }
+
+        cartAdapter = new CartAdapter(this, products, new CartAdapter.CartListener() {
+            @Override
+            public void onQuantityChanged() {
+                binding.subtotal.setText(String.format("%.2f",cart.getTotalPrice()));
+            }
+        });
+
         LinearLayoutManager linearLayoutManager=new LinearLayoutManager(this);
 
         DividerItemDecoration dividerItemDecoration=new DividerItemDecoration(this, linearLayoutManager.getOrientation());
         binding.cartList.setLayoutManager(linearLayoutManager);
         binding.cartList.setAdapter(cartAdapter);
         binding.cartList.addItemDecoration(dividerItemDecoration);
+
+        binding.subtotal.setText(String.format("%.2f",cart.getTotalPrice()));
+
+        binding.continueBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(CartActivity.this, CheckoutActivity.class));
+            }
+        });
+
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 

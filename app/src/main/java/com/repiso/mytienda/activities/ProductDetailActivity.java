@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.text.Html;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -16,6 +17,8 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.bumptech.glide.Glide;
+import com.hishd.tinycart.model.Cart;
+import com.hishd.tinycart.util.TinyCartHelper;
 import com.repiso.mytienda.R;
 import com.repiso.mytienda.databinding.ActivityProductDetailBinding;
 import com.repiso.mytienda.models.Product;
@@ -47,9 +50,21 @@ public class ProductDetailActivity extends AppCompatActivity {
                 .load(image)
                 .into(binding.productImage);
 
+        getProductDetails(id);
+
         //Agrega el título y el botón de retorno a la barra de menú
         getSupportActionBar().setTitle(name);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        Cart cart = TinyCartHelper.getCart();
+        binding.btnAddToCart.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                cart.addItem(currentProduct,1);
+                binding.btnAddToCart.setEnabled(false);
+                binding.btnAddToCart.setText("Added in cart");
+            }
+        });
 
     }
 
@@ -73,7 +88,7 @@ public class ProductDetailActivity extends AppCompatActivity {
         return super.onSupportNavigateUp();
     }
 
-    void getProductDetails(int id) {
+    private void getProductDetails(int id) {
         RequestQueue queue = Volley.newRequestQueue(this);
 
         String url = Constants.GET_PRODUCT_DETAILS_URL + id;

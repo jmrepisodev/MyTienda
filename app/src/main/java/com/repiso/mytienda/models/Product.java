@@ -9,7 +9,7 @@ public class Product implements Item, Serializable { //implementación TinyCart
 
     private String name, image, status;
     private double price, discount;
-    private int stock, id;
+    private int stock, id, quantity;
 
     public Product() {
     }
@@ -22,6 +22,14 @@ public class Product implements Item, Serializable { //implementación TinyCart
         this.discount = discount;
         this.stock = stock;
         this.id = id;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
     }
 
     public String getName() {
