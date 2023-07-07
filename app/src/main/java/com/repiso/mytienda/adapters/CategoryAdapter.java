@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.repiso.mytienda.R;
+import com.repiso.mytienda.activities.CategoryActivity;
 import com.repiso.mytienda.databinding.ItemCategoriesBinding;
 import com.repiso.mytienda.models.Category;
 
@@ -58,7 +59,7 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
     public void onBindViewHolder(@NonNull CategoryViewHolder holder, int position) {
 
         Category category = categories.get(position);
-        holder.binding.label.setText(category.getName());
+        holder.binding.label.setText(Html.fromHtml(category.getName()));
         //holder.binding.image.setImageResource(category.getIcon());
 
         //Glide es un marco que permite la carga de imágenes y administración de medios de forma ágil y fluida.
@@ -68,6 +69,16 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
                 .into(holder.binding.image);
 
         holder.binding.image.setBackgroundColor(Color.parseColor(category.getColor()));
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(context, CategoryActivity.class);
+                intent.putExtra("catId", category.getId());
+                intent.putExtra("categoryName", category.getName());
+                context.startActivity(intent);
+            }
+        });
 
 
     }

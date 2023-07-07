@@ -3,8 +3,10 @@ package com.repiso.mytienda.activities;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -12,6 +14,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.mancj.materialsearchbar.MaterialSearchBar;
 import com.repiso.mytienda.R;
 import com.repiso.mytienda.adapters.CategoryAdapter;
 import com.repiso.mytienda.adapters.ProductAdapter;
@@ -43,6 +46,25 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding=ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        binding.searchBar.setOnSearchActionListener(new MaterialSearchBar.OnSearchActionListener() {
+            @Override
+            public void onSearchStateChanged(boolean enabled) {
+
+            }
+
+            @Override
+            public void onSearchConfirmed(CharSequence text) {
+                Intent intent = new Intent(MainActivity.this, SearchActivity.class);
+                intent.putExtra("query", text.toString());
+                startActivity(intent);
+            }
+
+            @Override
+            public void onButtonClicked(int buttonCode) {
+
+            }
+        });
 
         initCategories();
         initProducts();
@@ -127,9 +149,9 @@ public class MainActivity extends AppCompatActivity {
                             );
                             categories.add(category);
                         }
-                       // categoryAdapter.notifyDataSetChanged();
+                        categoryAdapter.notifyDataSetChanged();
                     } else {
-                        // DO nothing
+                        Toast.makeText(getApplicationContext(),"No hay categorías disponibles",Toast.LENGTH_SHORT).show();
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -138,7 +160,7 @@ public class MainActivity extends AppCompatActivity {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-
+                Log.e("Error: ","No ha sido posible descargar las categorías");
             }
         });
 
