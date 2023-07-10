@@ -17,8 +17,9 @@
 
         <ImageView
             android:id="@+id/image"
-            android:layout_width="42dp"
+            android:layout_width="50dp"
             android:layout_height="42dp"
+            android:layout_margin="5dp"
             android:scaleType="fitCenter"
             app:srcCompat="@drawable/placeholder" />
 
@@ -35,7 +36,8 @@
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:text="Product Name"
-                android:textSize="15sp" />
+                android:textSize="16sp"
+                android:textStyle="bold"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -50,16 +52,17 @@
                     android:drawableLeft="@drawable/ic_folder"
                     android:drawablePadding="5dp"
                     android:text="2 item(s)"
-                    android:textSize="11sp" />
+                    />
 
                 <TextView
                     android:id="@+id/price"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:gravity="right"
-                    android:text="PKR 100.0"
+                    android:text="25 €"
                     android:textColor="#4CAF50"
+                    android:textSize="18sp"
                     android:textStyle="bold" />
             </LinearLayout>
 

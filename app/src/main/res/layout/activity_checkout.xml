@@ -172,7 +172,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_margin="10dp"
-                        android:background="@drawable/edittext_bg"
+                        android:background="@drawable/edit_text_bg"
                         android:ems="10"
                         android:hint="Full Name"
                         android:inputType="textPersonName"
@@ -183,10 +183,10 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_margin="10dp"
-                        android:background="@drawable/edittext_bg"
+                        android:background="@drawable/edit_text_bg"
                         android:ems="10"
                         android:hint="Email Address"
-                        android:inputType="textPersonName"
+                        android:inputType="textEmailAddress"
                         android:padding="15dp" />
 
                     <EditText
@@ -194,10 +194,10 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_margin="10dp"
-                        android:background="@drawable/edittext_bg"
+                        android:background="@drawable/edit_text_bg"
                         android:ems="10"
                         android:hint="Phone Number"
-                        android:inputType="textPersonName"
+                        android:inputType="phone"
                         android:padding="15dp" />
 
                     <EditText
@@ -205,10 +205,10 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_margin="10dp"
-                        android:background="@drawable/edittext_bg"
+                        android:background="@drawable/edit_text_bg"
                         android:ems="10"
                         android:hint="Address"
-                        android:inputType="textPersonName"
+                        android:inputType="text"
                         android:padding="15dp" />
 
                     <EditText
@@ -216,10 +216,10 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_margin="10dp"
-                        android:background="@drawable/edittext_bg"
+                        android:background="@drawable/edit_text_bg"
                         android:ems="10"
                         android:hint="Date Shipping"
-                        android:inputType="textPersonName"
+                        android:inputType="date"
                         android:padding="15dp" />
 
                     <EditText
@@ -227,10 +227,10 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_margin="10dp"
-                        android:background="@drawable/edittext_bg"
+                        android:background="@drawable/edit_text_bg"
                         android:ems="10"
                         android:hint="Additional Comments"
-                        android:inputType="textPersonName"
+                        android:inputType="textMultiLine"
                         android:padding="15dp" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
@@ -278,6 +278,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:background="@color/orange"
+                android:textColor="@color/white"
+                android:textSize="16sp"
                 android:text="Process Checkout" />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

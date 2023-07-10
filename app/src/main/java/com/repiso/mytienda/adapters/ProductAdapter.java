@@ -12,7 +12,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.repiso.mytienda.R;
 import com.repiso.mytienda.activities.ProductDetailActivity;
-import com.repiso.mytienda.databinding.ItemCategoriesBinding;
 import com.repiso.mytienda.databinding.ItemProductBinding;
 import com.repiso.mytienda.models.Product;
 
@@ -57,8 +56,8 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         Glide.with(context)
                 .load(product.getImage())
                 .into(holder.binding.image);
-        holder.binding.label.setText(product.getName());
-        holder.binding.price.setText(String.valueOf(product.getPrice())+" €");
+        holder.binding.tvName.setText(product.getName());
+        holder.binding.tvPrice.setText(String.valueOf(product.getPrice())+" €");
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override

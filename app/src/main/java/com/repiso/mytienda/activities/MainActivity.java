@@ -1,11 +1,19 @@
 package com.repiso.mytienda.activities;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.PopupMenu;
+import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.MenuItem;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -41,12 +49,27 @@ public class MainActivity extends AppCompatActivity {
     ProductAdapter productAdapter;
     ArrayList<Product> products;
 
+    ProgressDialog progressDialog;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding=ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        progressDialog=new ProgressDialog(this);
+        progressDialog.setCancelable(false);
+        progressDialog.setMessage("Cargando datos...");
+
+        //Inflate menu and setup OnMenuItemClickListener
+        binding.searchBar.inflateMenu(R.menu.cart_menu, R.drawable.ic_cart);
+        binding.searchBar.getMenu().setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                Toast.makeText(getApplicationContext(),"Menú lateral",Toast.LENGTH_SHORT).show();
+                return false;
+            }
+        });
         binding.searchBar.setOnSearchActionListener(new MaterialSearchBar.OnSearchActionListener() {
             @Override
             public void onSearchStateChanged(boolean enabled) {
@@ -62,7 +85,13 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onButtonClicked(int buttonCode) {
-
+                switch (buttonCode){
+                    case MaterialSearchBar.BUTTON_NAVIGATION:
+                        Toast.makeText(getApplicationContext(),"Menú navegación principal",Toast.LENGTH_SHORT).show();
+                        break;
+                    case MaterialSearchBar.BUTTON_SPEECH:
+                        break;
+                }
             }
         });
 
@@ -70,8 +99,13 @@ public class MainActivity extends AppCompatActivity {
         initProducts();
         initSlider();
 
+        progressDialog.dismiss();
+
     }
 
+    /**
+     * Carga la lista de categorías
+     */
     private void initCategories(){
         categories=new ArrayList<>();
 
@@ -79,9 +113,10 @@ public class MainActivity extends AppCompatActivity {
 
         //Instanciamos el adapter y el gridlayout
         categoryAdapter=new CategoryAdapter(this, categories);
-        GridLayoutManager gridLayoutManager=new GridLayoutManager(this, 4);
+        //GridLayoutManager gridLayoutManager=new GridLayoutManager(this, 4);
+        LinearLayoutManager linearLayoutManager=new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL,false);
         //Asociamos el adapter y layout al RecyclerView
-        binding.recyclerViewCategory.setLayoutManager(gridLayoutManager);
+        binding.recyclerViewCategory.setLayoutManager(linearLayoutManager);
         binding.recyclerViewCategory.setAdapter(categoryAdapter);
 
     }
@@ -128,13 +163,17 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * Obtiene la lista de categorías
+     */
     private void getCategories() {
         RequestQueue queue = Volley.newRequestQueue(this);
         StringRequest request = new StringRequest(Request.Method.GET, Constants.GET_CATEGORIES_URL, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 try {
-                    Log.e("err", response);
+                    Log.e("categorías", response);
+                    //Transforma String a JSON
                     JSONObject mainObj = new JSONObject(response);
                     if(mainObj.getString("status").equals("success")) {
                         JSONArray categoriesArray = mainObj.getJSONArray("categories");
@@ -151,7 +190,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                         categoryAdapter.notifyDataSetChanged();
                     } else {
-                        Toast.makeText(getApplicationContext(),"No hay categorías disponibles",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(),"Error: No ha sido posible descargar las categorías",Toast.LENGTH_SHORT).show();
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -160,46 +199,60 @@ public class MainActivity extends AppCompatActivity {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.e("Error: ","No ha sido posible descargar las categorías");
+                Toast.makeText(getApplicationContext(),"Error: No ha sido posible descargar las categorías",Toast.LENGTH_SHORT).show();
             }
         });
 
         queue.add(request);
     }
 
+    /**
+     * Obtiene una lista de productos
+     */
     private void getRecentProducts() {
         RequestQueue queue = Volley.newRequestQueue(this);
 
         String url = Constants.GET_PRODUCTS_URL + "?count=8";
-        StringRequest request = new StringRequest(Request.Method.GET, url, response -> {
-            try {
-                JSONObject object = new JSONObject(response);
-                if(object.getString("status").equals("success")){
-                    JSONArray productsArray = object.getJSONArray("products");
-                    for(int i =0; i< productsArray.length(); i++) {
-                        JSONObject childObj = productsArray.getJSONObject(i);
-                        Product product = new Product(
-                                childObj.getString("name"),
-                                Constants.PRODUCTS_IMAGE_URL + childObj.getString("image"),
-                                childObj.getString("status"),
-                                childObj.getDouble("price"),
-                                childObj.getDouble("price_discount"),
-                                childObj.getInt("stock"),
-                                childObj.getInt("id")
+        StringRequest request = new StringRequest(Request.Method.GET, url, new Response.Listener<String>(){
+            @Override
+            public void onResponse(String response) {
+                try {
+                    JSONObject object = new JSONObject(response);
+                    if(object.getString("status").equals("success")){
+                        JSONArray productsArray = object.getJSONArray("products");
+                        for(int i =0; i< productsArray.length(); i++) {
+                            JSONObject childObj = productsArray.getJSONObject(i);
+                            Product product = new Product(
+                                    childObj.getString("name"),
+                                    Constants.PRODUCTS_IMAGE_URL + childObj.getString("image"),
+                                    childObj.getString("status"),
+                                    childObj.getDouble("price"),
+                                    childObj.getDouble("price_discount"),
+                                    childObj.getInt("stock"),
+                                    childObj.getInt("id")
 
-                        );
-                        products.add(product);
+                            );
+                            products.add(product);
+                        }
+                        productAdapter.notifyDataSetChanged();
                     }
-                    productAdapter.notifyDataSetChanged();
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
-            } catch (JSONException e) {
-                e.printStackTrace();
             }
-        }, error -> { });
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+            }
+        });
 
         queue.add(request);
     }
 
+    /**
+     * Obtiene una lista de ofertas recientes
+     */
     private void getRecentOffers() {
         RequestQueue queue = Volley.newRequestQueue(this);
 

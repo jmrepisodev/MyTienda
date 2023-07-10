@@ -59,7 +59,7 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
     public void onBindViewHolder(@NonNull CategoryViewHolder holder, int position) {
 
         Category category = categories.get(position);
-        holder.binding.label.setText(Html.fromHtml(category.getName()));
+        holder.binding.tvName.setText(Html.fromHtml(category.getName()));
         //holder.binding.image.setImageResource(category.getIcon());
 
         //Glide es un marco que permite la carga de imágenes y administración de medios de forma ágil y fluida.

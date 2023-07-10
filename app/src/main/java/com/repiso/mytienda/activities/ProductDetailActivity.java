@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Html;
+import android.text.method.ScrollingMovementMethod;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -44,7 +45,9 @@ public class ProductDetailActivity extends AppCompatActivity {
         double price = getIntent().getDoubleExtra("price",0);
 
         binding.productName.setText(name);
-        binding.productDescription.setText("lorem ipsum");
+        //Colocar Scroll sobre TextView
+        binding.productDescription.setMovementMethod(new ScrollingMovementMethod());
+
 
         Glide.with(this)
                 .load(image)
@@ -52,9 +55,11 @@ public class ProductDetailActivity extends AppCompatActivity {
 
         getProductDetails(id);
 
+
         //Agrega el título y el botón de retorno a la barra de menú
         getSupportActionBar().setTitle(name);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
 
         Cart cart = TinyCartHelper.getCart();
         binding.btnAddToCart.setOnClickListener(new View.OnClickListener() {
@@ -62,7 +67,7 @@ public class ProductDetailActivity extends AppCompatActivity {
             public void onClick(View view) {
                 cart.addItem(currentProduct,1);
                 binding.btnAddToCart.setEnabled(false);
-                binding.btnAddToCart.setText("Added in cart");
+                binding.btnAddToCart.setText("Agregado al carrito");
             }
         });
 
@@ -100,9 +105,11 @@ public class ProductDetailActivity extends AppCompatActivity {
                     JSONObject object = new JSONObject(response);
                     if(object.getString("status").equals("success")) {
                         JSONObject product = object.getJSONObject("product");
-                        String description = product.getString("description");
+
+                        binding.productName.setText(product.getString("name"));
+                        binding.productPrice.setText(String.valueOf(product.getDouble("price")));
                         binding.productDescription.setText(
-                                Html.fromHtml(description)
+                                Html.fromHtml(product.getString("description"))
                         );
 
                         currentProduct = new Product(
