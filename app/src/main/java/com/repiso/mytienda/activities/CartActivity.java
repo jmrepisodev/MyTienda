@@ -56,6 +56,7 @@ public class CartActivity extends AppCompatActivity {
         DividerItemDecoration dividerItemDecoration=new DividerItemDecoration(this, linearLayoutManager.getOrientation());
         binding.cartList.setLayoutManager(linearLayoutManager);
         binding.cartList.setAdapter(cartAdapter);
+        //agrega una línea divisora
         binding.cartList.addItemDecoration(dividerItemDecoration);
 
         binding.subtotal.setText(String.format("%.2f",cart.getTotalPrice()));

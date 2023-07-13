@@ -10,6 +10,7 @@ import android.text.method.ScrollingMovementMethod;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -19,6 +20,7 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.bumptech.glide.Glide;
 import com.hishd.tinycart.model.Cart;
+import com.hishd.tinycart.model.Item;
 import com.hishd.tinycart.util.TinyCartHelper;
 import com.repiso.mytienda.R;
 import com.repiso.mytienda.databinding.ActivityProductDetailBinding;
@@ -28,10 +30,13 @@ import com.repiso.mytienda.utils.Constants;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Map;
+
 public class ProductDetailActivity extends AppCompatActivity {
 
     ActivityProductDetailBinding binding;
     Product currentProduct;
+    private int quantity=0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,12 +67,21 @@ public class ProductDetailActivity extends AppCompatActivity {
 
 
         Cart cart = TinyCartHelper.getCart();
+
+        for(Map.Entry<Item, Integer> item : cart.getAllItemsWithQty().entrySet()) {
+            quantity += item.getValue();
+        }
+
         binding.btnAddToCart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 cart.addItem(currentProduct,1);
+
                 binding.btnAddToCart.setEnabled(false);
                 binding.btnAddToCart.setText("Agregado al carrito");
+
+                quantity++;
+                invalidateOptionsMenu();
             }
         });
 
@@ -76,6 +90,23 @@ public class ProductDetailActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.cart_menu, menu);
+
+        //obtenemos el item del carrito del menú
+        final MenuItem menuItem = menu.findItem(R.id.cart);
+        View view = menuItem.getActionView();
+
+        TextView cartBadgeTextView = view.findViewById(R.id.cart_badge_text_view);
+        cartBadgeTextView.setText(String.valueOf(quantity));
+        cartBadgeTextView.setVisibility(quantity == 0 ? View.GONE : View.VISIBLE);
+
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onOptionsItemSelected(menuItem);
+            }
+        });
+
+
         return super.onCreateOptionsMenu(menu);
     }
 
