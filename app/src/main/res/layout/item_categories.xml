@@ -27,6 +27,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="5dp"
         android:maxLines="2"
+        android:maxWidth="72dp"
         android:ellipsize="end"
         android:text="Categoría"
         android:fontFamily="@font/roboto"

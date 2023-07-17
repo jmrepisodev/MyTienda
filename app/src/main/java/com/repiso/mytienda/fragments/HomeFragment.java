@@ -1,19 +1,19 @@
-package com.repiso.mytienda.activities;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.PopupMenu;
-import androidx.appcompat.widget.Toolbar;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
+package com.repiso.mytienda.fragments;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
+
+import androidx.appcompat.widget.PopupMenu;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+
 import android.util.Log;
-import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
-import android.widget.ProgressBar;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -24,25 +24,26 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.mancj.materialsearchbar.MaterialSearchBar;
 import com.repiso.mytienda.R;
+import com.repiso.mytienda.activities.MainActivity;
+import com.repiso.mytienda.activities.SearchActivity;
 import com.repiso.mytienda.adapters.CategoryAdapter;
 import com.repiso.mytienda.adapters.ProductAdapter;
-import com.repiso.mytienda.databinding.ActivityMainBinding;
+import com.repiso.mytienda.databinding.FragmentHomeBinding;
 import com.repiso.mytienda.models.Category;
 import com.repiso.mytienda.models.Product;
 import com.repiso.mytienda.utils.Constants;
 
-import org.imaginativeworld.whynotimagecarousel.ImageCarousel;
 import org.imaginativeworld.whynotimagecarousel.model.CarouselItem;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
 
-    ActivityMainBinding binding;
+public class HomeFragment extends Fragment {
+
+    private FragmentHomeBinding binding;
     CategoryAdapter categoryAdapter;
     ArrayList<Category> categories;
 
@@ -51,49 +52,23 @@ public class MainActivity extends AppCompatActivity {
 
     ProgressDialog progressDialog;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        binding=ActivityMainBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
+    public HomeFragment() {
+        // Required empty public constructor
+    }
 
-        progressDialog=new ProgressDialog(this);
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+
+        binding = FragmentHomeBinding.inflate(inflater, container, false);
+        View view = binding.getRoot();
+
+
+        progressDialog=new ProgressDialog(getContext());
         progressDialog.setCancelable(false);
         progressDialog.setMessage("Cargando datos...");
 
-        //Inflate menu and setup OnMenuItemClickListener
-        binding.searchBar.inflateMenu(R.menu.cart_menu);
-        binding.searchBar.getMenu().setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                Toast.makeText(getApplicationContext(),"Menú lateral",Toast.LENGTH_SHORT).show();
-                return false;
-            }
-        });
-        binding.searchBar.setOnSearchActionListener(new MaterialSearchBar.OnSearchActionListener() {
-            @Override
-            public void onSearchStateChanged(boolean enabled) {
 
-            }
-
-            @Override
-            public void onSearchConfirmed(CharSequence text) {
-                Intent intent = new Intent(MainActivity.this, SearchActivity.class);
-                intent.putExtra("query", text.toString());
-                startActivity(intent);
-            }
-
-            @Override
-            public void onButtonClicked(int buttonCode) {
-                switch (buttonCode){
-                    case MaterialSearchBar.BUTTON_NAVIGATION:
-                        Toast.makeText(getApplicationContext(),"Menú navegación principal",Toast.LENGTH_SHORT).show();
-                        break;
-                    case MaterialSearchBar.BUTTON_SPEECH:
-                        break;
-                }
-            }
-        });
 
         initCategories();
         initProducts();
@@ -101,6 +76,7 @@ public class MainActivity extends AppCompatActivity {
 
         progressDialog.dismiss();
 
+        return view;
     }
 
     /**
@@ -112,9 +88,9 @@ public class MainActivity extends AppCompatActivity {
         getCategories();
 
         //Instanciamos el adapter y el gridlayout
-        categoryAdapter=new CategoryAdapter(this, categories);
+        categoryAdapter=new CategoryAdapter(getContext(), categories);
         //GridLayoutManager gridLayoutManager=new GridLayoutManager(this, 4);
-        LinearLayoutManager linearLayoutManager=new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL,false);
+        LinearLayoutManager linearLayoutManager=new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL,false);
         //Asociamos el adapter y layout al RecyclerView
         binding.recyclerViewCategory.setLayoutManager(linearLayoutManager);
         binding.recyclerViewCategory.setAdapter(categoryAdapter);
@@ -127,8 +103,8 @@ public class MainActivity extends AppCompatActivity {
         getRecentProducts();
 
         //Instanciamos el adapter y el gridlayout
-        productAdapter=new ProductAdapter(products,this);
-        GridLayoutManager gridLayoutManager=new GridLayoutManager(this, 2);
+        productAdapter=new ProductAdapter(products,getContext());
+        GridLayoutManager gridLayoutManager=new GridLayoutManager(getContext(), 2);
         //Asociamos el adapter y layout al RecyclerView
         binding.recyclerViewProducts.setLayoutManager(gridLayoutManager);
         binding.recyclerViewProducts.setAdapter(productAdapter);
@@ -167,7 +143,7 @@ public class MainActivity extends AppCompatActivity {
      * Obtiene la lista de categorías
      */
     private void getCategories() {
-        RequestQueue queue = Volley.newRequestQueue(this);
+        RequestQueue queue = Volley.newRequestQueue(getContext());
         StringRequest request = new StringRequest(Request.Method.GET, Constants.GET_CATEGORIES_URL, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
@@ -190,7 +166,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                         categoryAdapter.notifyDataSetChanged();
                     } else {
-                        Toast.makeText(getApplicationContext(),"Error: No ha sido posible descargar las categorías",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(),"Error: No ha sido posible descargar las categorías",Toast.LENGTH_SHORT).show();
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -199,7 +175,7 @@ public class MainActivity extends AppCompatActivity {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Toast.makeText(getApplicationContext(),"Error: No ha sido posible descargar las categorías",Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(),"Error: No ha sido posible descargar las categorías",Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -210,7 +186,7 @@ public class MainActivity extends AppCompatActivity {
      * Obtiene una lista de productos
      */
     private void getRecentProducts() {
-        RequestQueue queue = Volley.newRequestQueue(this);
+        RequestQueue queue = Volley.newRequestQueue(getContext());
 
         String url = Constants.GET_PRODUCTS_URL + "?count=8";
         StringRequest request = new StringRequest(Request.Method.GET, url, new Response.Listener<String>(){
@@ -254,7 +230,7 @@ public class MainActivity extends AppCompatActivity {
      * Obtiene una lista de ofertas recientes
      */
     private void getRecentOffers() {
-        RequestQueue queue = Volley.newRequestQueue(this);
+        RequestQueue queue = Volley.newRequestQueue(getContext());
 
         StringRequest request = new StringRequest(Request.Method.GET, Constants.GET_OFFERS_URL, response -> {
             try {

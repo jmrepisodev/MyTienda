@@ -3,6 +3,7 @@ package com.repiso.mytienda.adapters;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.drawable.ColorDrawable;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -75,8 +76,79 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
 
         holder.binding.name.setText(product.getName());
         holder.binding.price.setText(product.getPrice()+" €");
-        holder.binding.quantity.setText(product.getQuantity()+" items");
+        holder.binding.tvQuantity.setText(String.valueOf(product.getQuantity()));
 
+        holder.binding.btnMinus.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                int quantity = product.getQuantity();
+
+                if(quantity > 1) {
+                    quantity--;
+                    product.setQuantity(quantity);
+                    holder.binding.tvQuantity.setText(String.valueOf(quantity));
+
+                    notifyDataSetChanged();
+
+                    cart.updateItem(product, product.getQuantity());
+                    cartListener.onQuantityChanged();
+
+                }
+            }
+        });
+
+        holder.binding.btnPlus.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                int quantity = product.getQuantity();
+                quantity++;
+
+                if(quantity>product.getStock()) {
+                    Toast.makeText(context, "Max stock disponible: "+ product.getStock(), Toast.LENGTH_SHORT).show();
+                    return;
+                } else {
+                    product.setQuantity(quantity);
+                    holder.binding.tvQuantity.setText(String.valueOf(quantity));
+                }
+
+                notifyDataSetChanged();
+
+                cart.updateItem(product, product.getQuantity());
+                cartListener.onQuantityChanged();
+            }
+        });
+
+        holder.binding.btnDelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                builder.setTitle("¿Está seguro de elimitar el producto del carrito?");
+                builder.setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        cart.removeItem(product);
+                        products.remove(product);
+                        notifyDataSetChanged();
+                        Toast.makeText(context, "Producto eliminado", Toast.LENGTH_SHORT).show();
+                    }
+                });
+                builder.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.dismiss();
+                    }
+                });
+
+                AlertDialog dialog = builder.create();
+                dialog.show();
+
+
+
+            }
+        });
+
+        /*
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             QuantityDialogBinding quantityDialogBinding;
             @SuppressLint("ResourceAsColor")
@@ -147,7 +219,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
 
             }
         });
-
+       */
     }
 
     /**

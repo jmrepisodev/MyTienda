@@ -3,7 +3,9 @@ package com.repiso.mytienda.activities;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Html;
 import android.text.method.ScrollingMovementMethod;
@@ -11,6 +13,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -19,6 +22,8 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.bumptech.glide.Glide;
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
 import com.hishd.tinycart.model.Cart;
 import com.hishd.tinycart.model.Item;
 import com.hishd.tinycart.util.TinyCartHelper;
@@ -37,6 +42,12 @@ public class ProductDetailActivity extends AppCompatActivity {
     ActivityProductDetailBinding binding;
     Product currentProduct;
     private int quantity=0;
+    private int cartQuantity=0;
+
+    private String name, image;
+    private int id;
+    private double price;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,10 +55,10 @@ public class ProductDetailActivity extends AppCompatActivity {
         binding=ActivityProductDetailBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        String name = getIntent().getStringExtra("name");
-        String image = getIntent().getStringExtra("image");
-        int id = getIntent().getIntExtra("id",0);
-        double price = getIntent().getDoubleExtra("price",0);
+        name = getIntent().getStringExtra("name");
+        image = getIntent().getStringExtra("image");
+        id = getIntent().getIntExtra("id",0);
+        price = getIntent().getDoubleExtra("price",0);
 
         binding.productName.setText(name);
         //Colocar Scroll sobre TextView
@@ -69,19 +80,65 @@ public class ProductDetailActivity extends AppCompatActivity {
         Cart cart = TinyCartHelper.getCart();
 
         for(Map.Entry<Item, Integer> item : cart.getAllItemsWithQty().entrySet()) {
-            quantity += item.getValue();
+            cartQuantity += item.getValue();
         }
 
         binding.btnAddToCart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                cart.addItem(currentProduct,1);
 
-                binding.btnAddToCart.setEnabled(false);
-                binding.btnAddToCart.setText("Agregado al carrito");
+                if(quantity!=0){
+                    cart.addItem(currentProduct,quantity);
+                    cartQuantity++;
 
-                quantity++;
-                invalidateOptionsMenu();
+                    binding.btnAddToCart.setEnabled(false);
+                    binding.btnAddToCart.setText("Agregado al carrito");
+
+                    invalidateOptionsMenu();
+
+                    Toast.makeText(getApplicationContext(),"Agregado al carrito", Toast.LENGTH_LONG).show();
+                }else{
+                    Toast.makeText(getApplicationContext(),"Debe seleccionar al menos un artículo", Toast.LENGTH_LONG).show();
+                }
+
+            }
+        });
+
+        binding.btnPlus.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if((quantity+1)>currentProduct.getStock()) {
+                    Toast.makeText(getApplicationContext(), "Max stock disponible: "+ currentProduct.getStock(), Toast.LENGTH_SHORT).show();
+                    return;
+                } else {
+                    quantity++;
+                }
+
+               binding.tvQuantity.setText(String.valueOf(quantity));
+            }
+        });
+
+        binding.btnMinus.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if((quantity-1)< 0) {
+                    Toast.makeText(getApplicationContext(), "Introduzca al menos un artículo en la cesta", Toast.LENGTH_SHORT).show();
+                    return;
+                } else {
+                    quantity--;
+                }
+                binding.tvQuantity.setText(String.valueOf(quantity));
+            }
+        });
+
+        binding.btnLove.setOnClickListener(new View.OnClickListener() {
+            @SuppressLint("ResourceAsColor")
+            @Override
+            public void onClick(View v) {
+                binding.btnLove.setImageResource(R.drawable.heart_red);
+                Toast.makeText(getApplicationContext(), "Agregado a favoritos", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -96,8 +153,9 @@ public class ProductDetailActivity extends AppCompatActivity {
         View view = menuItem.getActionView();
 
         TextView cartBadgeTextView = view.findViewById(R.id.cart_badge_text_view);
-        cartBadgeTextView.setText(String.valueOf(quantity));
-        cartBadgeTextView.setVisibility(quantity == 0 ? View.GONE : View.VISIBLE);
+        cartBadgeTextView.setText(String.valueOf(cartQuantity));
+        cartBadgeTextView.setVisibility(cartQuantity == 0 ? View.GONE : View.VISIBLE);
+
 
         view.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -114,6 +172,13 @@ public class ProductDetailActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if(item.getItemId() == R.id.cart) {
             startActivity(new Intent(this, CartActivity.class));
+        }
+        if(item.getItemId() == R.id.share) {
+            Intent sendIntent = new Intent();
+            sendIntent.setAction(Intent.ACTION_SEND);
+            sendIntent.putExtra(Intent.EXTRA_TEXT, currentProduct.getName());
+            sendIntent.setType("text/plain");
+            startActivity(sendIntent);
         }
         return super.onOptionsItemSelected(item);
     }
